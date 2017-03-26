@@ -1,0 +1,97 @@
+1package com.WebDriveTest;
+  2  3import java.util.regex.Pattern;
+  4import java.io.IOException;
+  5import java.nio.charset.Charset;
+  6import java.util.Arrays;
+  7import java.util.Collection;
+  8import java.util.concurrent.TimeUnit;
+  9import org.junit.*;
+ 10import org.junit.runner.RunWith;
+ 11import org.junit.runners.Parameterized;
+ 12import org.junit.runners.Parameterized.Parameters;
+ 13 14importstatic org.junit.Assert.*;
+ 15importstatic org.hamcrest.CoreMatchers.*;
+ 16import org.openqa.selenium.*;
+ 17import org.openqa.selenium.firefox.FirefoxDriver;
+ 18import org.openqa.selenium.support.ui.Select;
+ 19 20import com.csvreader.CsvReader;
+ 21 22 @RunWith(Parameterized.class)
+ 23publicclass WebDriveTest {
+ 24private WebDriver driver;
+ 25private String baseUrl;
+ 26privateboolean acceptNextAlert = true;
+ 27private StringBuffer verificationErrors = new StringBuffer();
+ 28private String id, pwd,address;
+ 29 30public WebDriveTest(String id, String address)
+ 31  {
+ 32this.id = id;
+ 33this.pwd = id.substring(4);
+ 34this.address = address;
+ 35  }
+ 36 37  @Before
+ 38publicvoid setUp() throws Exception {
+ 39     driver = new FirefoxDriver();
+ 40     baseUrl = "http://121.193.130.195:8080";
+ 41     driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+ 42  }
+ 43 44  @Parameters
+ 45publicstatic Collection<Object[]> getData() throws IOException {
+ 46       Object[][] obj = new Object[118][];
+ 47       CsvReader r = new CsvReader("D:\\CIA\\е¤§дё‰дё‹\\иЅЇжµ‹\\inputgit.csv", ',',
+ 48               Charset.forName("GBK"));
+ 49int count = 0;
+ 50       r.readHeaders();
+ 51while(r.readRecord()){
+ 52            obj[count] = new Object[]{r.get(0), r.get(2)};
+ 53            count++;
+ 54       }
+ 55return Arrays.asList(obj);
+ 56   }
+ 57 58  @Test
+ 59publicvoid testUntitled2() throws Exception {
+ 60     driver.get(baseUrl + "/");
+ 61     driver.findElement(By.id("name")).clear();
+ 62     driver.findElement(By.id("name")).sendKeys(this.id);
+ 63     driver.findElement(By.id("pwd")).clear();
+ 64     driver.findElement(By.id("pwd")).sendKeys(this.pwd);
+ 65     driver.findElement(By.id("submit")).click();
+ 66     assertEquals(this.address, driver.findElement(By.xpath("//tbody[@id='table-main']/tr[3]/td[2]")).getText());
+ 67  }
+ 68 69  @After
+ 70publicvoid tearDown() throws Exception {
+ 71    driver.quit();
+ 72     String verificationErrorString = verificationErrors.toString();
+ 73if (!"".equals(verificationErrorString)) {
+ 74      fail(verificationErrorString);
+ 75    }
+ 76  }
+ 77 78privateboolean isElementPresent(By by) {
+ 79try {
+ 80      driver.findElement(by);
+ 81returntrue;
+ 82     } catch (NoSuchElementException e) {
+ 83returnfalse;
+ 84    }
+ 85  }
+ 86 87privateboolean isAlertPresent() {
+ 88try {
+ 89      driver.switchTo().alert();
+ 90returntrue;
+ 91     } catch (NoAlertPresentException e) {
+ 92returnfalse;
+ 93    }
+ 94  }
+ 95 96private String closeAlertAndGetItsText() {
+ 97try {
+ 98       Alert alert = driver.switchTo().alert();
+ 99       String alertText = alert.getText();
+100if (acceptNextAlert) {
+101        alert.accept();
+102       } else {
+103        alert.dismiss();
+104      }
+105return alertText;
+106     } finally {
+107       acceptNextAlert = true;
+108    }
+109  }
